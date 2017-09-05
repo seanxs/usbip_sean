@@ -1698,7 +1698,10 @@ int proc_urb(PPDO_DEVICE_DATA pdodata, void *arg)
 	switch (urb->UrbHeader.Function){
 		case URB_FUNCTION_SELECT_CONFIGURATION:
 			KdPrint(("select configuration\n"));
-			return proc_select_config(pdodata, arg);
+			//return proc_select_config(pdodata, arg);
+			// this urb should be sent to remote host, so renturn pending
+			proc_select_config(pdodata, arg);
+			return STATUS_PENDING;
 		case URB_FUNCTION_RESET_PIPE:
 			return proc_reset_pipe(pdodata, arg);
 		case URB_FUNCTION_GET_CURRENT_FRAME_NUMBER:
@@ -1846,7 +1849,7 @@ Bus_Internal_IoCtl (
 
     pdoData = (PPDO_DEVICE_DATA) DeviceObject->DeviceExtension;
     
-if (pdoData->Present==FALSE) {
+	if (pdoData->Present==FALSE) {
         Irp->IoStatus.Status = status = STATUS_DEVICE_NOT_CONNECTED;
         IoCompleteRequest (Irp, IO_NO_INCREMENT);
         return status;

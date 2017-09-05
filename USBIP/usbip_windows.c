@@ -247,9 +247,15 @@ int usbip_vbus_attach_device(HANDLE fd, int port, struct usb_device *udev,
 	plugin.version = udev->bcdDevice;
 	plugin.speed = udev->speed;
 	plugin.inum = udev->bNumInterfaces;
+#if 0
 	plugin.int0_class = uinf0->bInterfaceClass;
 	plugin.int0_subclass = uinf0->bInterfaceSubClass;
 	plugin.int0_protocol = uinf0->bInterfaceProtocol;
+#else
+	plugin.int0_class = 0x03;
+	plugin.int0_subclass = 0x01;
+	plugin.int0_protocol = 0x01;
+#endif
 	plugin.addr = port;
 
 	ret = DeviceIoControl(fd, IOCTL_USBVBUS_PLUGIN_HARDWARE,
@@ -738,6 +744,10 @@ static int import_device(int sockfd, struct usb_device *udev,
 	}
 
 	dbg("call from attch here\n");
+	dbg("uinf0->bInterfaceClass:%d, uinf0->bInterfaceSubClass:%d, uinf0->bInterfaceProtocol:%d",
+		uinf0->bInterfaceClass,
+		uinf0->bInterfaceSubClass,
+		uinf0->bInterfaceProtocol);
 	ret = usbip_vbus_attach_device(fd, port, udev, uinf0);
 	dbg("return from attch here\n");
 
@@ -859,7 +869,13 @@ static int query_interface0(SOCKET sockfd, char * busid, struct usb_interface * 
 		dbg("%8s: %s", udev.busid, product_name);
 		dbg("%8s: %s", " ", udev.path);
 		dbg("%8s: %s", " ", class_name);
-
+#if 0
+		udev.bNumConfigurations = 1;
+		uinf0->bInterfaceClass = 3;
+		uinf0->bInterfaceSubClass = 1;
+		uinf0->bInterfaceProtocol = 1;
+		found = 1;
+#else
 		for (j=0; j < udev.bNumInterfaces; j++) {
 
 			ret = usbip_recv(sockfd, (void *) &uinf, sizeof(uinf));
@@ -880,7 +896,7 @@ static int query_interface0(SOCKET sockfd, char * busid, struct usb_interface * 
 
 			dbg("%8s: %2d - %s", " ", j, class_name);
 		}
-
+#endif
 		dbg(" ");
 	}
 	if(found)
@@ -895,16 +911,18 @@ int attach_device(char * host, char * busid)
 	HANDLE devfd=INVALID_HANDLE_VALUE;
 	struct usb_interface uinf;
 
-	sockfd = tcp_connect(host, USBIP_PORT_STRING);
+	/*sockfd = tcp_connect(host, USBIP_PORT_STRING);
 	if (INVALID_SOCKET == sockfd) {
 		err("tcp connect");
 		return 0;
 	}
+	
 	if(query_interface0(sockfd, busid, &uinf)){
 		err("cannot find device");
 		return 0;
 	}
-	closesocket(sockfd);
+	closesocket(sockfd);*/
+	
 	sockfd = tcp_connect(host, USBIP_PORT_STRING);
 	if (INVALID_SOCKET == sockfd) {
 		err("tcp connect");
