@@ -182,7 +182,7 @@ Return Value:
     }
 
 
-    KdPrint(("RegistryPath %p\r\n", RegistryPath));
+    KdPrint(("RegistryPath %p\n", RegistryPath));
     RtlCopyUnicodeString(&Globals.RegistryPath, RegistryPath);
 
     //
@@ -815,9 +815,9 @@ int prepare_select_interface_urb(struct _URB_SELECT_INTERFACE  *req,
 		seqnum, devid,
 		0, 0,
 		0, 0);
-	build_setup_packet(setup,
-	0,
-	BMREQUEST_STANDARD, BMREQUEST_TO_INTERFACE, USB_REQUEST_SET_INTERFACE);
+
+	build_setup_packet(setup, 0, BMREQUEST_STANDARD, BMREQUEST_TO_INTERFACE, USB_REQUEST_SET_INTERFACE);
+	//build_setup_packet(setup, 0, BMREQUEST_STANDARD, BMREQUEST_TO_DEVICE, USB_REQUEST_SET_INTERFACE);
 	setup->wLength = 0;
 	setup->wValue = req->Interface.AlternateSetting;
 	setup->wIndex = req->Interface.InterfaceNumber;
@@ -835,8 +835,7 @@ int prepare_class_vendor_urb(struct _URB_CONTROL_VENDOR_OR_CLASS_REQUEST  *req,
 	char in=req->TransferFlags & USBD_TRANSFER_DIRECTION_IN, type, recip;
 	*copied = 0;
 
-	KdPrint(("flag:%d pbuf:%p len:%d RequestTypeReservedBits:%02x"
-		"Request:%02x Value:%02x Index:%02x\r\n",
+	KdPrint(("flag:%d, pbuf:%p, len:%d, RequestTypeReservedBits:%02x, Request:%02x, Value:%02x, Index:%02x\n",
 		req->TransferFlags, req->TransferBuffer,
 		req->TransferBufferLength,
 		req->RequestTypeReservedBits, req->Request,
@@ -921,8 +920,7 @@ int prepare_get_intf_descriptor_urb(struct _URB_CONTROL_DESCRIPTOR_REQUEST * req
 	setup->wLength = (unsigned short)req->TransferBufferLength;
 	setup->wValue = (req->DescriptorType<<8)|req->Index;
 
-	KdPrint(("pbuf:%p len:%d Index:%02x"
-	"DescriptorType:%02x LanguageId:%02x\r\n",
+	KdPrint(("pbuf:%p, len:%d, Index:%02x, DescriptorType:%02x, LanguageId:%02x\n",
 	req->TransferBuffer,
 	req->TransferBufferLength,
 	req->Index,
@@ -994,7 +992,7 @@ int prepare_iso_urb(struct _URB_ISOCH_TRANSFER * req,
 	}
 
 	if(NULL==buf)
-		return STATUS_BUFFER_TOO_SMALL; \
+		return STATUS_BUFFER_TOO_SMALL;
 	if(req->TransferFlags & USBD_TRANSFER_DIRECTION_IN) {
 		if (len < sizeof(*h) + req->NumberOfPackets *
 			sizeof(*ip_desc))
@@ -1228,7 +1226,7 @@ Bus_Read (
 
     commonData = (PCOMMON_DEVICE_DATA) DeviceObject->DeviceExtension;
 
-    KdPrint(("enter Read func\n"));
+    KdPrint((__FUNCTION__"\tenter Read func\n"));
 
     if (!commonData->IsFDO) {
         Irp->IoStatus.Status = status = STATUS_INVALID_DEVICE_REQUEST;
@@ -1260,7 +1258,7 @@ Bus_Read (
     }
     status = process_read_irp(pdodata, Irp);
 END:
-    KdPrint(("Read return:0x%08x\n", status));
+    KdPrint((__FUNCTION__"\tRead return:0x%08x\n", status));
     if(status != STATUS_PENDING){
 		Irp->IoStatus.Status = status;
 		IoCompleteRequest (Irp, IO_NO_INCREMENT);
@@ -1676,7 +1674,7 @@ int proc_select_config(PPDO_DEVICE_DATA pdodata,
 void show_iso_urb(struct _URB_ISOCH_TRANSFER * iso)
 {
 	ULONG i;
-	KdPrint(("iso_num:%d len:%d",
+	KdPrint(("iso_num:%d len:%d\n",
 				iso->NumberOfPackets,
 				iso->TransferBufferLength));
 	for(i=0; i<iso->NumberOfPackets; i++){
@@ -1704,10 +1702,16 @@ int proc_urb(PPDO_DEVICE_DATA pdodata, void *arg)
 			return STATUS_PENDING;
 		case URB_FUNCTION_RESET_PIPE:
 			return proc_reset_pipe(pdodata, arg);
+		case URB_FUNCTION_ABORT_PIPE:
+		{
+			KdPrint(("reset pipe handle 0x%08x\n", urb->UrbPipeRequest.PipeHandle));
+			return STATUS_SUCCESS;
+		}
 		case URB_FUNCTION_GET_CURRENT_FRAME_NUMBER:
 			return proc_get_frame(pdodata, arg);
 		case URB_FUNCTION_ISOCH_TRANSFER:
 			/* show_iso_urb(arg); */
+			show_iso_urb(arg);
 			/* passthrough */
 		case URB_FUNCTION_CLASS_DEVICE:
 		case URB_FUNCTION_CLASS_INTERFACE:
@@ -1836,10 +1840,10 @@ Bus_Internal_IoCtl (
     PCOMMON_DEVICE_DATA     commonData;
 
     commonData = (PCOMMON_DEVICE_DATA) DeviceObject->DeviceExtension;
-    KdPrint(("Enter internal control %d\r\n", commonData->IsFDO));
+    KdPrint(("Enter internal control %d\n", commonData->IsFDO));
 
     irpStack = IoGetCurrentIrpStackLocation (Irp);
-    KdPrint(("internal control:%d %s\r\n", irpStack->Parameters.DeviceIoControl.IoControlCode,code2name(irpStack->Parameters.DeviceIoControl.IoControlCode)));
+    KdPrint(("internal control:%d %s\n", irpStack->Parameters.DeviceIoControl.IoControlCode,code2name(irpStack->Parameters.DeviceIoControl.IoControlCode)));
 
     if (commonData->IsFDO) {
         Irp->IoStatus.Status = status = STATUS_INVALID_DEVICE_REQUEST;
@@ -1922,7 +1926,7 @@ Return Value:
 
     PAGED_CODE ();
 
-    KdPrint(("Enter control\r\n"));
+    KdPrint(("Enter control\n"));
 
     commonData = (PCOMMON_DEVICE_DATA) DeviceObject->DeviceExtension;
     //

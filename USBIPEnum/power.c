@@ -28,7 +28,7 @@ Return Value:
     PCOMMON_DEVICE_DATA commonData;
 
 
-    KdPrint(("Bus_Power\r\n"));
+    KdPrint(("Bus_Power\n"));
 
     status = STATUS_SUCCESS;
     irpStack = IoGetCurrentIrpStackLocation (Irp);

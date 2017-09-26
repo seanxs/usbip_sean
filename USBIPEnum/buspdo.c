@@ -622,7 +622,7 @@ Return Value:
     }
     RtlCopyMemory (buffer, DeviceData->HardwareIDs, length);
 	*(unsigned short *)((char *)buffer+length -2)=0;
-	KdPrint(("dev id:%LS\r\n", buffer));
+	KdPrint(("dev id:%LS\n", buffer));
         Irp->IoStatus.Information = (ULONG_PTR) buffer;
         break;
 
@@ -655,7 +655,7 @@ Return Value:
 			break;
 		}
 		RtlCopyMemory (buffer, DeviceData->HardwareIDs, length);
-		KdPrint(("hid:%LS\r\n", buffer));
+		KdPrint(("hid:%LS\n", buffer));
 		Irp->IoStatus.Information = (ULONG_PTR) buffer;
 		break;
 
@@ -673,7 +673,7 @@ Return Value:
         }
         RtlCopyMemory (buffer, DeviceData->compatible_ids,
 		DeviceData->compatible_ids_len);
-		KdPrint(("cid:%LS\r\n", buffer));
+		KdPrint(("cid:%LS\n\n", buffer));
         Irp->IoStatus.Information = (ULONG_PTR) buffer;
         break;
 	case BusQueryContainerID:

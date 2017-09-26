@@ -255,7 +255,7 @@ Return Value:
     PAGED_CODE ();
 
 
-    KdPrint(("Bus_PnP\r\n"));
+    KdPrint((__FUNCTION__"\n"));
 
     irpStack = IoGetCurrentIrpStackLocation (Irp);
     ASSERT (IRP_MJ_PNP == irpStack->MajorFunction);

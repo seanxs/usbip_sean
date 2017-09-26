@@ -240,3 +240,7 @@ ModelManifest.xml
 
 # FAKE - F# Make
 .fake/
+/log_cap
+/log_windbg
+/20170921_ok.txt
+*.txt

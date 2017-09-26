@@ -119,7 +119,7 @@ Routine Description
 
     PAGED_CODE();
 
-    KdPrint(("Bus SystemControl\r\n"));
+    KdPrint(("Bus SystemControl\n"));
 
     stack = IoGetCurrentIrpStackLocation (Irp);
 

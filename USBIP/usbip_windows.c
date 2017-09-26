@@ -93,7 +93,7 @@ static char * usbip_vbus_dev_node_name(char *buf, unsigned long buf_len)
 		}
 
 		// Check if we got the correct device.
-		if (strcmp(hardwareID, "root\\usbipenum") != 0) {
+		if (stricmp(hardwareID, "root\\usbipenum") != 0) {
 			// Wrong hardware ID. Get the next one.
 			memberIndex++;
 			continue;
@@ -292,7 +292,7 @@ void dbg_file(char *fmt, ...)
 #ifdef DEBUG
 static void usbip_dump_header(struct usbip_header *pdu)
 {
-	dbg_file("BASE: cmd %u seq %u devid %u dir %u ep %u\n",
+	dbg_file("BASE: cmd %u seq %u devid %x dir %u ep %u\n",
 			pdu->base.command,
 			pdu->base.seqnum,
 			pdu->base.devid,
@@ -458,7 +458,7 @@ int write_to_dev(char * buf, int buf_len, int len, SOCKET sockfd,
 		return -1;
 	dbg_file("recv seq %d\n", u->base.seqnum);
 	if ((u->base.seqnum%100)==0)
-		fprintf(stderr,"Receive sequence:    %d\r", u->base.seqnum);
+		fprintf(stderr,"Receive sequence:    %d\n", u->base.seqnum);
 
 #ifdef DEBUG
 	usbip_dump_header(u);
@@ -593,7 +593,7 @@ int write_to_sock(char *buf, int len, SOCKET sockfd)
 		err("out q full");
 		return -1;
 	}
-	dbg_file("send seq:%d\r", ntohl(u->base.seqnum));
+	dbg_file("send seq:%d\n", ntohl(u->base.seqnum));
 //	fprintf(stderr,"Send sequence: %d\n",  ntohl(u->base.seqnum));
 
 
