@@ -984,6 +984,7 @@ int prepare_iso_urb(struct _URB_ISOCH_TRANSFER * req,
 
 	*copied = 0;
 
+	KdPrint((__FUNCTION__));
 	KdPrint(("PipeHandle %08x\n", (unsigned long)req->PipeHandle));
 
 	if(type!=USB_ENDPOINT_TYPE_ISOCHRONOUS){
@@ -1196,7 +1197,31 @@ int process_read_irp(PPDO_DEVICE_DATA pdodata, PIRP read_irp)
 	    KdPrint(("Error, why old_seq_num %d\n", old_seq_num));
     KdPrint(("get a ioctl_irp %p %d\n", ioctl_irp, seq_num));
     status = set_read_irp_data(read_irp, ioctl_irp, seq_num, pdodata->devid);
-    if(status == STATUS_SUCCESS||!IoSetCancelRoutine(ioctl_irp, NULL)){
+    if(status == STATUS_SUCCESS||!IoSetCancelRoutine(ioctl_irp, NULL))
+	{
+#if 0
+		{
+			PIO_STACK_LOCATION irpstack = IoGetCurrentIrpStackLocation(ioctl_irp);
+			struct _URB_ISOCH_TRANSFER *urb = irpstack->Parameters.Others.Argument1;
+
+			if (urb->Hdr.Function == URB_FUNCTION_ISOCH_TRANSFER)
+			{
+				if (!pipe2direct(urb->PipeHandle))
+				{
+					urb->Hdr.Status = USBD_STATUS_SUCCESS;
+					ioctl_irp->IoStatus.Status = STATUS_SUCCESS;
+					RemoveEntryList(le);
+					ExFreeToNPagedLookasideList(&g_lookaside, urb_r);
+					KeReleaseSpinLock(&pdodata->q_lock, oldirql);
+					KeRaiseIrql(DISPATCH_LEVEL, &oldirql);
+					IoCompleteRequest(ioctl_irp, IO_NO_INCREMENT);
+					KeLowerIrql(oldirql);
+					KdPrint(("For output ISO transfer, we complete irp right now"));
+					return status;
+				}
+			}
+		}
+#endif
 		KeReleaseSpinLock(&pdodata->q_lock, oldirql);
 		return status;
     }
@@ -1674,15 +1699,13 @@ int proc_select_config(PPDO_DEVICE_DATA pdodata,
 void show_iso_urb(struct _URB_ISOCH_TRANSFER * iso)
 {
 	ULONG i;
-	KdPrint(("iso_num:%d len:%d\n",
-				iso->NumberOfPackets,
-				iso->TransferBufferLength));
-	for(i=0; i<iso->NumberOfPackets; i++){
-		KdPrint(("num: %d len:%d off:%d\n",
-					i,
-					iso->IsoPacket[i].Length,
-				iso->IsoPacket[i].Offset));
+	KdPrint(("iso_num:%d len:%d\n", iso->NumberOfPackets, iso->TransferBufferLength));
+#if 0
+	for(i=0; i<iso->NumberOfPackets; i++)
+	{
+		KdPrint(("num: %d len:%d off:%d\n", i, iso->IsoPacket[i].Length, iso->IsoPacket[i].Offset));
 	}
+#endif
 }
 
 int proc_urb(PPDO_DEVICE_DATA pdodata, void *arg)
