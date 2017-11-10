@@ -1029,26 +1029,24 @@ int prepare_iso_urb(struct _URB_ISOCH_TRANSFER * req,
 	}
 	ip_desc = (struct usbip_iso_packet_descriptor *)(buf + (*copied));
 	offset=0;
-	for(i=0;i<req->NumberOfPackets;i++){
-		if(req->IsoPacket[i].Offset<offset){
-			KdPrint(("Warning strange iso packet offset:%d %d",
-			offset,	req->IsoPacket[i].Offset));
-
+	for (i = 0; i < req->NumberOfPackets; i++)
+	{
+		if (req->IsoPacket[i].Offset < offset)
+		{
+			KdPrint(("Warning strange iso packet offset:%d %d", offset, req->IsoPacket[i].Offset));
 			return STATUS_INVALID_PARAMETER;
 		}
-		ip_desc->offset = RtlUlongByteSwap(
-				req->IsoPacket[i].Offset);
-		if(i>0)
-			(ip_desc-1)->length = RtlUlongByteSwap(
-				req->IsoPacket[i].Offset -
-				offset);
+		ip_desc->offset = RtlUlongByteSwap(req->IsoPacket[i].Offset);
+		if (i > 0)
+		{
+			(ip_desc - 1)->length = RtlUlongByteSwap(req->IsoPacket[i].Offset - offset);
+		}
 		offset = req->IsoPacket[i].Offset;
 		ip_desc->actual_length = 0;
 		ip_desc->status = 0;
 		ip_desc++;
 	}
-	(ip_desc-1)->length = RtlUlongByteSwap(
-				req->TransferBufferLength - offset);
+	(ip_desc - 1)->length = RtlUlongByteSwap(req->TransferBufferLength - offset);
 	(*copied)+=req->NumberOfPackets * sizeof(*ip_desc);
 	return STATUS_SUCCESS;
 }
@@ -1199,7 +1197,7 @@ int process_read_irp(PPDO_DEVICE_DATA pdodata, PIRP read_irp)
     status = set_read_irp_data(read_irp, ioctl_irp, seq_num, pdodata->devid);
     if(status == STATUS_SUCCESS||!IoSetCancelRoutine(ioctl_irp, NULL))
 	{
-#if 0
+#if SEAN_XS
 		{
 			PIO_STACK_LOCATION irpstack = IoGetCurrentIrpStackLocation(ioctl_irp);
 			struct _URB_ISOCH_TRANSFER *urb = irpstack->Parameters.Others.Argument1;

@@ -553,12 +553,12 @@ int sock_read_completed(SOCKET sockfd, HANDLE devfd, OVERLAPPED *ov_sock,
 		err("get overlapping failed: %ld", GetLastError());
 		return -1;
 	}
-	info("read %d bytes from socket %d\n", len, sockfd);
+	//info("read %d bytes from socket %d\n", len, sockfd);
 	dbg_file("Bytes read from socket asynchronously: %d\n",len);
 	ret = write_to_dev(sock_read_buf, BIG_SIZE, len, sockfd, devfd, ov_dev);
 	if(ret<0)
 		return -1;
-	info("write %d bytes to device %p\n", len, devfd);
+	//info("write %d bytes to device %p\n", len, devfd);
 	return sock_read_async(sockfd, devfd, ov_sock, ov_dev);
 }
 
@@ -643,11 +643,11 @@ int dev_read_completed(HANDLE devfd, SOCKET sockfd, OVERLAPPED *ov)
 		err("get overlapping failed: %ld", GetLastError());
 		return -1;
 	}
-	info("read %d bytes from device %p\n", len, devfd);
+	//info("read %d bytes from device %p\n", len, devfd);
 	ret = write_to_sock(dev_read_buf, len, sockfd);
 	if(ret<0)
 		return -1;
-	info("write %d bytes to socket %d\n", len, sockfd);
+	//info("write %d bytes to socket %d\n", len, sockfd);
 	return dev_read_async(devfd, sockfd, ov);
 }
 

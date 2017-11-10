@@ -673,7 +673,7 @@ Return Value:
         }
         RtlCopyMemory (buffer, DeviceData->compatible_ids,
 		DeviceData->compatible_ids_len);
-		KdPrint(("cid:%LS\n\n", buffer));
+		KdPrint(("cid:%LS\n", buffer));
         Irp->IoStatus.Information = (ULONG_PTR) buffer;
         break;
 	case BusQueryContainerID:
