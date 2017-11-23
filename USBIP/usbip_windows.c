@@ -247,7 +247,7 @@ int usbip_vbus_attach_device(HANDLE fd, int port, struct usb_device *udev,
 	plugin.version = udev->bcdDevice;
 	plugin.speed = udev->speed;
 	plugin.inum = udev->bNumInterfaces;
-#if 0
+#if 1
 	plugin.int0_class = uinf0->bInterfaceClass;
 	plugin.int0_subclass = uinf0->bInterfaceSubClass;
 	plugin.int0_protocol = uinf0->bInterfaceProtocol;
