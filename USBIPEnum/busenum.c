@@ -984,7 +984,7 @@ int prepare_iso_urb(struct _URB_ISOCH_TRANSFER * req,
 
 	*copied = 0;
 
-	KdPrint((__FUNCTION__));
+	KdPrint((__FUNCTION__"\t"));
 	KdPrint(("PipeHandle %08x\n", (unsigned long)req->PipeHandle));
 
 	if(type!=USB_ENDPOINT_TYPE_ISOCHRONOUS){

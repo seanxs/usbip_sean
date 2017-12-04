@@ -52,13 +52,14 @@ Routine Description:
         //
         DeviceData->DevicePowerState = PowerDeviceD0;
         SET_NEW_PNP_STATE(DeviceData, Started);
-	status = IoRegisterDeviceInterface (
+		status = STATUS_SUCCESS;
+	/*status = IoRegisterDeviceInterface (
                 DeviceObject,
                 &GUID_DEVINTERFACE_USB_DEVICE,
                 NULL,
                 &DeviceData->usb_dev_interface);
 	if(status==STATUS_SUCCESS)
-		IoSetDeviceInterfaceState(&DeviceData->usb_dev_interface, TRUE);
+		IoSetDeviceInterfaceState(&DeviceData->usb_dev_interface, TRUE);*/
         break;
 
     case IRP_MN_STOP_DEVICE:
