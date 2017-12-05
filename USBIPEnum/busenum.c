@@ -307,30 +307,31 @@ struct usbip_header {
 void try_save_config(PPDO_DEVICE_DATA pdodata, struct _URB_CONTROL_DESCRIPTOR_REQUEST *req, int in_len)
 {
 	PUSB_CONFIGURATION_DESCRIPTOR cfg;
-	if(req->Hdr.Function != URB_FUNCTION_GET_DESCRIPTOR_FROM_DEVICE||
-		req->DescriptorType!=USB_CONFIGURATION_DESCRIPTOR_TYPE)
+	if (req->Hdr.Function != URB_FUNCTION_GET_DESCRIPTOR_FROM_DEVICE ||
+		req->DescriptorType != USB_CONFIGURATION_DESCRIPTOR_TYPE)
+	{
 		return;
-	cfg=(PUSB_CONFIGURATION_DESCRIPTOR) req->TransferBuffer;
-	if(in_len<sizeof(*cfg)){
+	}
+	cfg = (PUSB_CONFIGURATION_DESCRIPTOR)req->TransferBuffer;
+	if (in_len < sizeof(*cfg))
+	{
 		KdPrint(("not full len\n"));
 		return;
 	}
-	if(cfg->bDescriptorType!=USB_CONFIGURATION_DESCRIPTOR_TYPE||
-			cfg->wTotalLength!=in_len){
+	if (cfg->bDescriptorType != USB_CONFIGURATION_DESCRIPTOR_TYPE ||
+		cfg->wTotalLength != in_len)
+	{
 		KdPrint(("not full cfg, cfg->bDescriptorType:%d, cfg->wTotalLength:%d, in_len:%d\n"), cfg->bDescriptorType, cfg->wTotalLength, in_len);
 		return;
 	}
 	KdPrint(("save config for using when select config\n"));
-	pdodata->dev_config = ExAllocatePoolWithTag(
-		NonPagedPool,
-		in_len, BUSENUM_POOL_TAG);
-	if(!pdodata->dev_config){
-		KdPrint(("Warning, can't malloc %d bytes\n",
-					in_len));
+	pdodata->dev_config = ExAllocatePoolWithTag(NonPagedPool, in_len, BUSENUM_POOL_TAG);
+	if (!pdodata->dev_config)
+	{
+		KdPrint(("Warning, can't malloc %d bytes\n", in_len));
 		return;
 	}
-	RtlCopyMemory(pdodata->dev_config, req->TransferBuffer,
-			in_len);
+	RtlCopyMemory(pdodata->dev_config, req->TransferBuffer, in_len);
 	return;
 }
 
@@ -876,15 +877,14 @@ int prepare_class_vendor_urb(struct _URB_CONTROL_VENDOR_OR_CLASS_REQUEST  *req,
 			break;
 	}
 
-	CHECK_SIZE_RW
+	CHECK_SIZE_RW;
 
-	set_cmd_submit_usbip_header (h,
+	set_cmd_submit_usbip_header(
+		h,
 		seqnum, devid,
 		in, 0,
-		req->TransferFlags|USBD_SHORT_TRANSFER_OK, req->TransferBufferLength);
-	build_setup_packet(setup,
-	in,
-	type, recip, req->Request);
+		req->TransferFlags | USBD_SHORT_TRANSFER_OK, req->TransferBufferLength);
+	build_setup_packet(setup, in, type, recip, req->Request);
 //FIXME what is the usage of RequestTypeReservedBits?
 	setup->wLength = (unsigned short)req->TransferBufferLength;
 	setup->wValue = req->Value;
@@ -892,8 +892,7 @@ int prepare_class_vendor_urb(struct _URB_CONTROL_VENDOR_OR_CLASS_REQUEST  *req,
 
 	*copied=sizeof(*h);
 	if(!in){
-		RtlCopyMemory(h+1, req->TransferBuffer,
-				req->TransferBufferLength);
+		RtlCopyMemory(h + 1, req->TransferBuffer, req->TransferBufferLength);
 		(*copied)+=req->TransferBufferLength;
 	}
 	return  STATUS_SUCCESS;
@@ -1111,12 +1110,13 @@ int set_read_irp_data(PIRP read_irp, PIRP ioctl_irp, unsigned long seq_num,
 	case IOCTL_INTERNAL_USB_SUBMIT_URB:
 		break;
 	case IOCTL_INTERNAL_USB_RESET_PORT:
-		return prepare_reset_dev(buf, len, &read_irp->IoStatus.Information,			seq_num,devid);
+		return prepare_reset_dev(buf, len, &read_irp->IoStatus.Information, seq_num, devid);
 	default:
 		read_irp->IoStatus.Information = 0;
 		return STATUS_INVALID_PARAMETER;
     }
-    urb =  iostack_irp->Parameters.Others.Argument1;
+
+	urb = iostack_irp->Parameters.Others.Argument1;
     if(NULL == urb){
 	    read_irp->IoStatus.Information = 0;
 	    return  STATUS_INVALID_DEVICE_REQUEST;
@@ -1713,14 +1713,15 @@ int proc_urb(PPDO_DEVICE_DATA pdodata, void *arg)
 		KdPrint(("null arg"));
 		return STATUS_INVALID_PARAMETER;
 	}
-	KdPrint(("URB FUNC:%d %s\n", urb->UrbHeader.Function, func2name(urb->UrbHeader.Function)));
+	KdPrint(("URB FUNC:%#x %s\n", urb->UrbHeader.Function, func2name(urb->UrbHeader.Function)));
 	switch (urb->UrbHeader.Function){
 		case URB_FUNCTION_SELECT_CONFIGURATION:
 			KdPrint(("select configuration\n"));
-			//return proc_select_config(pdodata, arg);
-			// this urb should be sent to remote host, so renturn pending
-			proc_select_config(pdodata, arg);
-			return STATUS_PENDING;
+			return proc_select_config(pdodata, arg);
+			//	this urb should be sent to remote host, so renturn pending
+			//	if not the host side software need to set configuration after bind device
+			//proc_select_config(pdodata, arg);
+			//return STATUS_PENDING;
 		case URB_FUNCTION_RESET_PIPE:
 			return proc_reset_pipe(pdodata, arg);
 		case URB_FUNCTION_ABORT_PIPE:
@@ -1750,8 +1751,7 @@ int proc_urb(PPDO_DEVICE_DATA pdodata, void *arg)
 		default:
 			break;
 	}
-	KdPrint(("Warning function:%x %d\n", urb->UrbHeader.Function,
-				urb->UrbHeader.Length));
+	KdPrint(("Warning function:%x %d\n", urb->UrbHeader.Function, urb->UrbHeader.Length));
 	return STATUS_INVALID_PARAMETER;
 }
 
@@ -1861,19 +1861,19 @@ Bus_Internal_IoCtl (
     PCOMMON_DEVICE_DATA     commonData;
 
     commonData = (PCOMMON_DEVICE_DATA) DeviceObject->DeviceExtension;
-    KdPrint(("Enter internal control %d\n", commonData->IsFDO));
-
-    irpStack = IoGetCurrentIrpStackLocation (Irp);
-    KdPrint(("internal control:%d %s\n", irpStack->Parameters.DeviceIoControl.IoControlCode,code2name(irpStack->Parameters.DeviceIoControl.IoControlCode)));
-
     if (commonData->IsFDO) {
+		KdPrint(("Enter internal control %d, invalid request for fdo!\n", commonData->IsFDO));
         Irp->IoStatus.Status = status = STATUS_INVALID_DEVICE_REQUEST;
         IoCompleteRequest (Irp, IO_NO_INCREMENT);
         return status;
     }
 
-    pdoData = (PPDO_DEVICE_DATA) DeviceObject->DeviceExtension;
-    
+	irpStack = IoGetCurrentIrpStackLocation(Irp);
+	KdPrint(("internal control:%d %s\n",
+		irpStack->Parameters.DeviceIoControl.IoControlCode,
+		code2name(irpStack->Parameters.DeviceIoControl.IoControlCode)));
+
+    pdoData = (PPDO_DEVICE_DATA) DeviceObject->DeviceExtension;    
 	if (pdoData->Present==FALSE) {
         Irp->IoStatus.Status = status = STATUS_DEVICE_NOT_CONNECTED;
         IoCompleteRequest (Irp, IO_NO_INCREMENT);
