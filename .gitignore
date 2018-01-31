@@ -245,3 +245,9 @@ ModelManifest.xml
 /20170921_ok.txt
 *.txt
 /20171201_audio.pcapng
+/Install
+/USBIPEnum/sdv
+/USBIPEnum/sdv-user.sdv
+/USBIPEnum/SDV-default.xml
+/USBIPEnum/runsdvui.cmd
+/USBIPEnum/busenum.c.bak

@@ -498,7 +498,15 @@ int process_write_irp(PPDO_DEVICE_DATA pdodata, PIRP irp)
     urb =  irpstack->Parameters.Others.Argument1;
     if(NULL == urb)
 	    goto end;
-    switch(urb->Hdr.Function){
+    switch(urb->Hdr.Function)
+	{
+#if SEAN_XS
+	case URB_FUNCTION_CONTROL_TRANSFER:
+	{
+		in = urb->TransferFlags&USBD_TRANSFER_DIRECTION_IN;
+		type = USB_ENDPOINT_TYPE_CONTROL;
+	}
+#endif
 	case URB_FUNCTION_GET_DESCRIPTOR_FROM_INTERFACE:
 	case URB_FUNCTION_GET_DESCRIPTOR_FROM_DEVICE:
 		in=1;
@@ -1052,6 +1060,44 @@ int prepare_iso_urb(struct _URB_ISOCH_TRANSFER * req,
 	return STATUS_SUCCESS;
 }
 
+int prepare_ctrl_urb(struct _URB_CONTROL_TRANSFER * req,
+	char *buf, size_t len, ULONG_PTR *copied, unsigned long seqnum,
+	unsigned int devid)
+{
+	struct usbip_header * h = (struct usbip_header *) buf;
+	struct usb_ctrl_setup * setup = (struct usb_ctrl_setup *)h->u.cmd_submit.setup;
+	*copied = 0;
+	unsigned int direct = (req->TransferFlags&USBD_TRANSFER_DIRECTION_IN) ? USBIP_DIR_IN : USBIP_DIR_OUT;
+
+	CHECK_SIZE_READ
+
+	set_cmd_submit_usbip_header(
+		h,
+		seqnum, devid,
+		direct, 0,
+		USBD_SHORT_TRANSFER_OK, req->TransferBufferLength);
+	RtlCopyMemory(setup, req->SetupPacket, 8);
+	*copied = sizeof(*h);
+	if (direct== USBIP_DIR_OUT)
+	{
+		buf = NULL;
+		if (req->TransferBuffer)
+			buf = req->TransferBuffer;
+		else if (req->TransferBufferMDL) {
+			buf = MmGetSystemAddressForMdlSafe(
+				req->TransferBufferMDL,
+				LowPagePriority);
+		}
+		else
+			KdPrint(("No transferbuffer for out\n"));
+		if (NULL == buf)
+			return STATUS_INSUFFICIENT_RESOURCES;
+		RtlCopyMemory(h + 1, buf, req->TransferBufferLength);
+		(*copied) += req->TransferBufferLength;
+	}
+	return STATUS_SUCCESS;
+}
+
 int prepare_bulk_urb(struct _URB_BULK_OR_INTERRUPT_TRANSFER * req,
 		char *buf, size_t len,  ULONG_PTR *copied, unsigned long seqnum,
 		unsigned int devid)
@@ -1124,6 +1170,13 @@ int set_read_irp_data(PIRP read_irp, PIRP ioctl_irp, unsigned long seq_num,
 	    return  STATUS_INVALID_DEVICE_REQUEST;
     }
     switch (urb->UrbHeader.Function){
+#if SEAN_XS
+		case URB_FUNCTION_CONTROL_TRANSFER:
+		{
+			return prepare_ctrl_urb((struct _URB_CONTROL_DESCRIPTOR_REQUEST *)urb, buf, len,
+				&read_irp->IoStatus.Information, seq_num, devid);
+		}
+#endif
 		case URB_FUNCTION_BULK_OR_INTERRUPT_TRANSFER:
 			return prepare_bulk_urb((struct _URB_BULK_OR_INTERRUPT_TRANSFER *)urb, buf, len,
 			&read_irp->IoStatus.Information, seq_num, devid);
@@ -1749,6 +1802,9 @@ int proc_urb(PPDO_DEVICE_DATA pdodata, void *arg)
 		case URB_FUNCTION_GET_DESCRIPTOR_FROM_DEVICE:
 		case URB_FUNCTION_BULK_OR_INTERRUPT_TRANSFER:
 		case URB_FUNCTION_SELECT_INTERFACE:
+#if SEAN_XS
+		case URB_FUNCTION_CONTROL_TRANSFER:
+#endif
 			return STATUS_PENDING;
 		default:
 			break;
