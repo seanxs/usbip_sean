@@ -33,12 +33,14 @@ DefaultDestDir = 12
 [SourceDisksFiles]
 USBIPEnum_x86.sys  = 1,,
 USBIPEnum_x64.sys  = 1,,
+USBIPWsk.sys  = 1,,
 
 [Drivers_Dir_x86]
 USBIPEnum.sys,USBIPEnum_x86.sys
 
 [Drivers_Dir_x64]
 USBIPEnum.sys,USBIPEnum_x64.sys
+USBIPWsk.sys
 
 [USBIP_Device]
 CopyFiles=Drivers_Dir_x86

@@ -1,4 +1,5 @@
 #include "USBIPWsk.h"
+#include "exports.h"
 
 #ifdef ALLOC_PRAGMA
 #pragma alloc_text(INIT, DriverEntry)
@@ -61,6 +62,8 @@ DriverUnload(
 
 void InitializeWskClient()
 {
+	KdPrint((__FUNCTION__"\n"));
+
 	return;
 }
 

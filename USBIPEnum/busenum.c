@@ -135,6 +135,9 @@ const char * func2name(unsigned int func)
 	return "Unknown func code";
 }
 
+//#include "..\USBIPWsk\exports.h"
+DECLSPEC_IMPORT void InitializeWskClient();
+
 NTSTATUS
 DriverEntry (
     __in  PDRIVER_OBJECT  DriverObject,
@@ -202,6 +205,8 @@ Return Value:
     DriverObject->MajorFunction[IRP_MJ_SYSTEM_CONTROL] = Bus_SystemControl;
     DriverObject->DriverUnload = Bus_DriverUnload;
     DriverObject->DriverExtension->AddDevice = Bus_AddDevice;
+
+	InitializeWskClient();
 
     KdPrint(("load ok\n"));
 

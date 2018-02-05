@@ -186,6 +186,7 @@
     <ClCompile Include="USBIPWsk.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="exports.h" />
     <ClInclude Include="USBIPWsk.h" />
   </ItemGroup>
   <ItemGroup>

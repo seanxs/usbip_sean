@@ -1,5 +1,5 @@
-#ifndef _USBIPWSK_H
-#define _USBIPWSK_H
+#ifndef _USBIPWSK_EXPORTSH
+#define _USBIPWSK_EXPORTSH
 
 #include <ntddk.h>
 #include <wdm.h>
@@ -13,18 +13,13 @@
 
 #define NTSTRSAFE_LIB
 #include <ntstrsafe.h>
-//#include <dontuse.h>
 
 EXTERN_C_START
 
-//DECLSPEC_IMPORT int LoadPrinterDriver(int arg1);
-
-DRIVER_INITIALIZE DriverEntry;
-
-DRIVER_UNLOAD DriverUnload;
-
-//void InitializeWskClient();
+void InitializeWskClient();
 
 EXTERN_C_END
 
-#endif // !_USBIPWSK_H
+
+#endif // !_USBIPWSK_EXPORTSH
+

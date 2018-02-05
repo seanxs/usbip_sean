@@ -4,6 +4,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 VisualStudioVersion = 15.0.27130.2026
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "USBIPEnum", "USBIPEnum\USBIPEnum.vcxproj", "{D2A8E79A-EFAD-447B-949F-7D91C5278039}"
+	ProjectSection(ProjectDependencies) = postProject
+		{A11D8E6E-2FD0-4A37-86E0-36D1C0163CDC} = {A11D8E6E-2FD0-4A37-86E0-36D1C0163CDC}
+	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "usbip", "USBIP\usbip.vcxproj", "{36CEE68D-D6CF-4413-978C-794488F44555}"
 	ProjectSection(ProjectDependencies) = postProject

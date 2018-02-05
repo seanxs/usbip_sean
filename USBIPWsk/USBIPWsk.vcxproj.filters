@@ -27,6 +27,9 @@
     <ClInclude Include="USBIPWsk.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="exports.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="USBIPWsk.def">
