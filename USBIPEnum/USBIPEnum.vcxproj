@@ -131,6 +131,8 @@
     <DebuggerFlavor>DbgengKernelDebugger</DebuggerFlavor>
     <TargetName>$(TargetName.Replace(' ',''))_x64</TargetName>
     <TimeStampServer>http://timestamp.globalsign.com/scripts/timstamp.dll</TimeStampServer>
+    <LibraryWPath>$(LibraryWPath)</LibraryWPath>
+    <LibraryPath>$(OutDir);$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">
     <DebuggerFlavor>DbgengKernelDebugger</DebuggerFlavor>
@@ -159,18 +161,18 @@
       <PreprocessorDefinitions>SEAN_XS;POOL_NX_OPTIN=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>ntstrsafe.lib;wdmsec.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>ntstrsafe.lib;wdmsec.lib;USBIPWsk.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
     <Inf Include="USBIPEnum.inf" />
   </ItemGroup>
   <ItemGroup>
-    <FilesToPackage Include="C:\Users\sheng.xiao\Source\Repos\usbip_sean\x64\Debug\USBIPEnum_x64.sys">
+    <FilesToPackage Include="C:\Users\sheng.xiao\Source\Repos\usbip_sean\x64\Debug\USBIPWsk.sys" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
       <PackageRelativeDirectory>
       </PackageRelativeDirectory>
     </FilesToPackage>
-    <FilesToPackage Include="C:\Users\sheng.xiao\Source\Repos\usbip_sean\x64\Debug\USBIPWsk.sys" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <FilesToPackage Include="C:\Users\sheng.xiao\Source\Repos\usbip_sean\x64\Release\USBIPWsk.sys" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
       <PackageRelativeDirectory>
       </PackageRelativeDirectory>
     </FilesToPackage>

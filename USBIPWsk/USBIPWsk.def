@@ -2,3 +2,4 @@ NAME USBIPWsk.SYS
 EXPORTS
 	InitializeWskClient
 	DllUnload PRIVATE
+	DllInitialize PRIVATE

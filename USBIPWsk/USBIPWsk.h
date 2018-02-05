@@ -23,6 +23,9 @@ DRIVER_INITIALIZE DriverEntry;
 
 DRIVER_UNLOAD DriverUnload;
 
+NTSTATUS DllInitialize(
+	_In_ PUNICODE_STRING RegistryPath
+);
 //void InitializeWskClient();
 
 EXTERN_C_END

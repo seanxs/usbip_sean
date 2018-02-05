@@ -73,3 +73,15 @@ NTSTATUS DllUnload(VOID)
 
 	return STATUS_SUCCESS;
 }
+
+NTSTATUS DllInitialize(
+	_In_ PUNICODE_STRING RegistryPath
+)
+{
+	UNREFERENCED_PARAMETER(RegistryPath);
+
+	KdPrint(("USBIPWsk.sys is now loading\n"));
+	KdPrint(("RegistryPath:%wZ\n", RegistryPath));
+
+	return STATUS_SUCCESS;
+}
