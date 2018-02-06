@@ -247,14 +247,23 @@ int usbip_vbus_attach_device(HANDLE fd, int port, struct usb_device *udev,
 	plugin.version = udev->bcdDevice;
 	plugin.speed = udev->speed;
 	plugin.inum = udev->bNumInterfaces;
-#if 1
+#if SEAN_XS
 	plugin.int0_class = uinf0->bInterfaceClass;
 	plugin.int0_subclass = uinf0->bInterfaceSubClass;
 	plugin.int0_protocol = uinf0->bInterfaceProtocol;
 #else
-	plugin.int0_class = 0x03;
-	plugin.int0_subclass = 0x01;
-	plugin.int0_protocol = 0x01;
+	if (udev->bNumInterfaces > 1)
+	{
+		plugin.int0_class = 0x0;
+		plugin.int0_subclass = 0x0;
+		plugin.int0_protocol = 0x0;
+	}
+	else
+	{
+		plugin.int0_class = uinf0->bInterfaceClass;
+		plugin.int0_subclass = uinf0->bInterfaceSubClass;
+		plugin.int0_protocol = uinf0->bInterfaceProtocol;
+	}
 #endif
 	plugin.addr = port;
 
