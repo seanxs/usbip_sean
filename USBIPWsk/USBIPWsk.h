@@ -17,8 +17,6 @@
 
 EXTERN_C_START
 
-//DECLSPEC_IMPORT int LoadPrinterDriver(int arg1);
-
 DRIVER_INITIALIZE DriverEntry;
 
 DRIVER_UNLOAD DriverUnload;
